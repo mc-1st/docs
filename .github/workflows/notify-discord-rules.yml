@@ -22,10 +22,12 @@ jobs:
         id: diff
         shell: bash
         run: |
-          git diff --unified=0 HEAD^ HEAD -- '*.mdx' > /tmp/rules.diff
+          base='${{ github.event.before }}'
+          if [[ "$base" =~ ^0+$ ]]; then base=HEAD^; fi
+          git diff --unified=0 "$base" '${{ github.sha }}' -- '*.mdx' > /tmp/rules.diff
           awk '!/^\+\+\+ / && !/^--- / && (/^\+/ || /^-/)' /tmp/rules.diff \
             | awk '{ sign=substr($0,1); text=substr($0,2); gsub(/\*\*/, "", text); gsub(/`/, "", text); if (text ~ /^[[:space:]]*(<|>|---|title:|description:|sidebarTitle:|icon:|href:)/) next; if (text ~ /^[[:space:]]*$/) next; print sign " " text }' \
-            > /tmp/rules-lines.diff
+            | awk '!seen[$0]++' > /tmp/rules-lines.diff
           if [ ! -s /tmp/rules-lines.diff ]; then
             echo "has_changes=false" >> "$GITHUB_OUTPUT"
           else
