@@ -1,5 +1,8 @@
 import { readFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import { resolve } from 'node:path';
 
 const port = Number(process.env.PORT || 3099);
@@ -9,6 +12,9 @@ const model = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 const maxMinute = Number(process.env.MAX_REQUESTS_PER_MINUTE || 5);
 const maxDay = Number(process.env.MAX_REQUESTS_PER_DAY || 30);
 const indexFile = resolve(import.meta.dirname, 'data/documents.json');
+const projectRoot = resolve(import.meta.dirname, '..');
+const execFileAsync = promisify(execFile);
+const webhookSecret = process.env.GITHUB_WEBHOOK_SECRET || '';
 const requests = new Map();
 let index = [];
 const noRuleResponse = {
@@ -118,6 +124,28 @@ async function readJson(request) {
   return JSON.parse(body || '{}');
 }
 
+async function readBody(request) {
+  let body = '';
+  for await (const chunk of request) {
+    body += chunk;
+    if (body.length > 1_000_000) throw new Error('Payload-ul webhookului este prea mare.');
+  }
+  return body;
+}
+
+function validWebhookSignature(body, signature) {
+  if (!webhookSecret || typeof signature !== 'string' || !signature.startsWith('sha256=')) return false;
+  const expected = Buffer.from(`sha256=${createHmac('sha256', webhookSecret).update(body).digest('hex')}`);
+  const received = Buffer.from(signature);
+  return expected.length === received.length && timingSafeEqual(expected, received);
+}
+
+async function syncRulesRepository() {
+  await execFileAsync('/usr/bin/git', ['pull', '--ff-only', 'origin', 'main'], { cwd: projectRoot, timeout: 60_000 });
+  await execFileAsync(process.execPath, [resolve(import.meta.dirname, 'build-index.mjs')], { cwd: projectRoot, timeout: 60_000 });
+  await loadIndex();
+}
+
 async function askGroq(question, sources) {
   if (!process.env.GROQ_API_KEY) throw new Error('Serviciul nu este configurat încă.');
   const context = sources.map((source, number) => `[S${number + 1}] ${source.title}\nURL: ${publicRulesUrl}${source.url}\n${source.content}`).join('\n\n');
@@ -156,6 +184,19 @@ createServer(async (request, response) => {
     return response.end();
   }
   if (request.method === 'GET' && request.url === '/health') return send(response, 200, { ok: true, indexedSections: index.length, configured: Boolean(process.env.GROQ_API_KEY) });
+  if (request.method === 'POST' && request.url === '/admin/reload') {
+    try {
+      const body = await readBody(request);
+      if (!validWebhookSignature(body, request.headers['x-hub-signature-256'])) return send(response, 401, { error: 'Semnătură webhook invalidă.' });
+      const payload = JSON.parse(body || '{}');
+      if (payload.ref && payload.ref !== 'refs/heads/main') return send(response, 202, { ok: true, ignored: true });
+      await syncRulesRepository();
+      return send(response, 200, { ok: true, indexedSections: index.length });
+    } catch (error) {
+      console.error(`Webhook reload failed: ${error.message}`);
+      return send(response, 500, { error: 'Sincronizarea regulamentului a eșuat.' });
+    }
+  }
   if (request.method !== 'POST' || request.url !== '/chat') return send(response, 404, { error: 'Negăsit.' });
   if (requestOrigin !== origin) return send(response, 403, { error: 'Origin nepermis.' });
   if (!takeRateLimit(clientIp(request))) return send(response, 429, { error: 'Ai atins temporar limita de întrebări. Încearcă mai târziu.' });
