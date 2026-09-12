@@ -16,7 +16,7 @@
   document.head.append(style);
   const trigger = document.createElement('button');
   trigger.id = 'mc1st-rules-trigger'; trigger.type = 'button';
-  trigger.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 11h8M8 15h5"/></svg> Întreabă regulamentul';
+  trigger.innerHTML = '✨ Ask AI';
   const panel = document.createElement('section');
   panel.id = 'mc1st-rules-panel'; panel.setAttribute('aria-label', 'Asistent regulament MC-1ST');
   panel.innerHTML = '<div class="mc-top"><div class="mc-title"><i>?</i><span>ASISTENT REGULAMENT</span></div><button class="mc-close" type="button" aria-label="Închide asistentul">×</button></div><div id="mc1st-rules-messages"></div><div id="mc1st-rules-quick"></div><form id="mc1st-rules-form" novalidate><textarea id="mc1st-rules-input" maxlength="1000" rows="1" placeholder="Scrie întrebarea ta despre reguli…" aria-label="Întrebarea ta"></textarea><button id="mc1st-rules-send" type="submit">TRIMITE</button></form>';
