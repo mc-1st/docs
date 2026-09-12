@@ -1,0 +1,10 @@
+{
+  "name": "mc-1st-rules-chatbot",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build-index": "node build-index.mjs",
+    "start": "node server.mjs"
+  }
+}
