@@ -51,5 +51,8 @@
       "family": "JetBrains Mono"
     }
   },
-  "description": "Regulamentul 1st Network"
+  "description": "Regulamentul 1st Network",
+  "thumbnails": {
+    "background": "/images/logobunbun.png"
+  }
 }
