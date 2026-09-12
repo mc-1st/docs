@@ -11,14 +11,6 @@
   "appearance": {
     "default": "dark"
   },
-  "font": {
-    "headings": {
-      "family": "Inter"
-    },
-    "body": {
-      "family": "Inter"
-    }
-  },
   "navigation": {
     "tabs": [
       {
@@ -50,5 +42,13 @@
         ]
       }
     ]
+  },
+  "fonts": {
+    "heading": {
+      "family": "JetBrains Mono"
+    },
+    "body": {
+      "family": "JetBrains Mono"
+    }
   }
 }
