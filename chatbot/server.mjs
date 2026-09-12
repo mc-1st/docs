@@ -17,7 +17,7 @@ const noRuleResponse = {
   sources: [],
   supportUrl: 'https://discord.mc-1st.ro'
 };
-const sectionCatalog = () => index.map((document) => `${document.id} | ${document.title} | ${document.content.replace(/\s+/gu, ' ').slice(0, 120)}`).join('\n');
+const sectionCatalog = () => index.map((document) => `${document.id} | ${document.title}`).join('\n');
 
 const stopWords = new Set('a ai ale al am an asta acest aceasta ca care ce cu daca de din e este eu fi in la mai mi nu o pe pentru sa sau se si sunt te un unei unor'.split(' '));
 const queryExpansions = [
@@ -25,7 +25,7 @@ const queryExpansions = [
   { terms: ['spam', 'flood'], add: ['spam', 'mesaj', 'repetat'] },
   { terms: ['hack', 'cheat', 'autoclick', 'xray'], add: ['hack', 'cheating', 'interzis'] },
   { terms: ['reclama', 'server', 'promov'], add: ['reclama', 'promovarea', 'comunitatilor'] },
-  { terms: ['cont', 'account', 'impart', 'partaj', 'share', 'prieten'], add: ['conturilor', 'impartirea', 'vanzarea', 'jucatori'] },
+  { terms: ['cont', 'account', 'impart', 'partaj', 'share'], add: ['conturilor', 'impartirea', 'vanzarea', 'jucatori'] },
   { terms: ['scam', 'teapa', 'insel', 'trade', 'tranzact', 'comert', 'vanz'], add: ['scam', 'comert', 'tranzactiile', 'intermediar'] }
 ];
 
