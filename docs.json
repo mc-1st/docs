@@ -54,5 +54,21 @@
   "description": "Regulamentul 1st Network",
   "thumbnails": {
     "background": "/images/logobunbun.png"
+  },
+  "navbar": {
+    "links": [
+      {
+        "href": "https://discord.mc-1st.ro",
+        "label": "Discord"
+      },
+      {
+        "href": "https://store.mc-1st.ro",
+        "label": "Store"
+      }
+    ]
+  },
+  "logo": {
+    "light": "/images/logobunbun.png",
+    "dark": "/images/logobunbun.png"
   }
 }
