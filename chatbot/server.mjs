@@ -11,6 +11,12 @@ const maxDay = Number(process.env.MAX_REQUESTS_PER_DAY || 30);
 const indexFile = resolve(import.meta.dirname, 'data/documents.json');
 const requests = new Map();
 let index = [];
+const noRuleResponse = {
+  answer: 'Nu am găsit o regulă care să răspundă clar acestei întrebări. Pentru nelămuriri, contactează echipa staff pe Discord.',
+  sanction: 'Regulamentul nu precizează o sancțiune exactă.',
+  sources: [],
+  supportUrl: 'https://discord.mc-1st.ro'
+};
 
 const stopWords = new Set('a ai ale al am an asta acest aceasta ca care ce cu daca de din e este eu fi in la mai mi nu o pe pentru sa sau se si sunt te un unei unor'.split(' '));
 const queryExpansions = [
@@ -81,7 +87,7 @@ async function askGroq(question, sources) {
   const payload = await groqResponse.json();
   const answer = JSON.parse(payload.choices?.[0]?.message?.content || '{}');
   const sourceNumbers = Array.isArray(answer.sources) ? [...new Set(answer.sources.filter((number) => Number.isInteger(number) && number >= 1 && number <= sources.length))] : [];
-  if (!answer.answer || sourceNumbers.length === 0) throw new Error('Modelul nu a furnizat un răspuns cu surse verificabile.');
+  if (!answer.answer || sourceNumbers.length === 0) return noRuleResponse;
   const citedSources = sourceNumbers.map((number) => ({ title: sources[number - 1].title, url: `${publicRulesUrl}${sources[number - 1].url}` }));
   return { answer: String(answer.answer), sanction: String(answer.sanction || 'Regulamentul nu precizează o sancțiune exactă.'), sources: citedSources.filter((source, position) => citedSources.findIndex((candidate) => candidate.url === source.url) === position) };
 }
@@ -109,7 +115,7 @@ createServer(async (request, response) => {
     const { question } = await readJson(request);
     if (typeof question !== 'string' || question.trim().length < 3 || question.length > 1000) return send(response, 400, { error: 'Întrebarea trebuie să aibă între 3 și 1000 de caractere.' });
     const sources = relevantDocuments(question.trim());
-    if (sources.length === 0) return send(response, 200, { answer: 'Regulamentul disponibil nu precizează clar acest caz.', sanction: 'Regulamentul nu precizează o sancțiune exactă.', sources: [] });
+    if (sources.length === 0) return send(response, 200, noRuleResponse);
     return send(response, 200, await askGroq(question.trim(), sources));
   } catch (error) {
     console.error(error);
