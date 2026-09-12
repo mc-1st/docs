@@ -44,18 +44,19 @@ function pageUrl(file) {
 function chunksFor(text) {
   const parts = text.split(/(?=^#{1,2}\s)/mu).map((part) => part.trim()).filter(Boolean);
   return parts.flatMap((part) => {
-    if (part.length <= 1800) return [part];
+    const heading = part.match(/^#{1,2}\s+(.+)$/mu)?.[1]?.trim() || '';
+    if (part.length <= 1800) return [{ heading, content: part }];
     const paragraphs = part.split(/\n\n+/u);
     const chunks = [];
     let current = '';
     for (const paragraph of paragraphs) {
       if ((current + '\n\n' + paragraph).length > 1800 && current) {
-        chunks.push(current);
+        chunks.push({ heading, content: current });
         current = '';
       }
       current = current ? `${current}\n\n${paragraph}` : paragraph;
     }
-    if (current) chunks.push(current);
+    if (current) chunks.push({ heading, content: current });
     return chunks;
   });
 }
@@ -66,8 +67,9 @@ for (const file of files) {
   const raw = await readFile(file, 'utf8');
   const title = titleFromFrontmatter(raw, basename(file, '.mdx'));
   const url = pageUrl(file);
-  for (const [index, content] of chunksFor(cleanMdx(raw)).entries()) {
-    documents.push({ id: `${url}#${index + 1}`, title, url, content });
+  for (const [index, chunk] of chunksFor(cleanMdx(raw)).entries()) {
+    const sectionTitle = chunk.heading ? `${title} — ${chunk.heading}` : title;
+    documents.push({ id: `${url}#${index + 1}`, title: sectionTitle, url, content: chunk.content });
   }
 }
 
