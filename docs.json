@@ -1,0 +1,54 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "MC-1ST",
+  "theme": "willow",
+  "favicon": "https://media.brand.dev/40273af9-4bbc-4b51-9f79-dc6387d86ec3.png",
+  "colors": {
+    "primary": "#346ddb",
+    "light": "#fbc204",
+    "dark": "#d81904"
+  },
+  "appearance": {
+    "default": "dark"
+  },
+  "font": {
+    "headings": {
+      "family": "Inter"
+    },
+    "body": {
+      "family": "Inter"
+    }
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Regulament",
+        "groups": [
+          {
+            "group": "Introducere",
+            "pages": [
+              "introducere",
+              "informatii-generale"
+            ]
+          },
+          {
+            "group": "Regulament Minecraft",
+            "pages": [
+              "minecraft/chat",
+              "minecraft/gameplay",
+              "minecraft/donatori",
+              "minecraft/scam-si-comert"
+            ]
+          },
+          {
+            "group": "Alte Regulamente",
+            "pages": [
+              "regulament-discord",
+              "regulament-staff"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

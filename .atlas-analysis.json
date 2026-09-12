@@ -1,0 +1,52 @@
+{
+  "projectType": "saas",
+  "projectName": "MC-1ST",
+  "projectDescription": "Regulamentul oficial al serverului de Minecraft mc-1st.ro, cuprinzând regulile de joc, chat, Discord, donatori, tranzacții și echipa staff.",
+  "theme": "willow",
+  "primaryColor": "#346ddb",
+  "lightColor": "#fbc204",
+  "darkColor": "#d81904",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Regulament",
+        "groups": [
+          {
+            "group": "Introducere",
+            "pages": [
+              "introducere",
+              "informatii-generale"
+            ]
+          },
+          {
+            "group": "Regulament Minecraft",
+            "pages": [
+              "minecraft/chat",
+              "minecraft/gameplay",
+              "minecraft/donatori",
+              "minecraft/scam-si-comert"
+            ]
+          },
+          {
+            "group": "Alte Regulamente",
+            "pages": [
+              "regulament-discord",
+              "regulament-staff"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Regulament chat (limbaj, spam, toxicitate, rasism)",
+    "Regulament gameplay (cheating, bug-uri, griefing, profileboosting)",
+    "Regulament donatori",
+    "Regulament scam și comerț",
+    "Regulament Discord",
+    "Regulament și informații staff",
+    "Informații generale (FAQ)",
+    "Sistem de sancțiuni clar cu durate definite"
+  ],
+  "publicApiSurface": []
+}
