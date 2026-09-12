@@ -17,7 +17,7 @@ const noRuleResponse = {
   sources: [],
   supportUrl: 'https://discord.mc-1st.ro'
 };
-const sectionCatalog = () => index.map((document) => `${document.id} | ${document.title}`).join('\n');
+const sectionCatalog = () => index.map((document) => `${document.id} | ${document.title} | ${document.content.replace(/\s+/gu, ' ').slice(0, 120)}`).join('\n');
 
 const stopWords = new Set('a ai ale al am an asta acest aceasta ca care ce cu daca de din e este eu fi in la mai mi nu o pe pentru sa sau se si sunt te un unei unor'.split(' '));
 const queryExpansions = [
@@ -162,8 +162,7 @@ createServer(async (request, response) => {
   try {
     const { question } = await readJson(request);
     if (typeof question !== 'string' || question.trim().length < 3 || question.length > 1000) return send(response, 400, { error: 'Întrebarea trebuie să aibă între 3 și 1000 de caractere.' });
-    const lexicalSources = relevantDocuments(question.trim());
-    const sources = lexicalSources[0]?.score >= 5 ? lexicalSources : await selectRelevantDocuments(question.trim());
+    const sources = await selectRelevantDocuments(question.trim());
     if (sources.length === 0) return send(response, 200, noRuleResponse);
     return send(response, 200, await askGroq(question.trim(), sources));
   } catch (error) {
