@@ -29,11 +29,11 @@ function rankDocuments(question, documents) {
     const title = normalize(document.title || '');
     const score = [...new Set(queryTokens)].reduce((sum, token) => {
       const escaped = token.replace(/[.*+?^\${}()|[\]\\]/gu, '\\$&');
-      const exact = haystack.match(new RegExp('\\\\b' + escaped + '\\\\b', 'gu'))?.length || 0;
-      const titleExact = title.match(new RegExp('\\\\b' + escaped + '\\\\b', 'gu'))?.length || 0;
+      const exact = haystack.match(new RegExp('\\b' + escaped + '\\b', 'gu'))?.length || 0;
+      const titleExact = title.match(new RegExp('\\b' + escaped + '\\b', 'gu'))?.length || 0;
       const stem = token.length >= 5 ? token.slice(0, 4).replace(/[.*+?^\${}()|[\]\\]/gu, '\\$&') : '';
-      const related = stem ? haystack.match(new RegExp('\\\\b' + stem + '[a-z]*\\\\b', 'gu'))?.length || 0 : 0;
-      const titleRelated = stem ? title.match(new RegExp('\\\\b' + stem + '[a-z]*\\\\b', 'gu'))?.length || 0 : 0;
+      const related = stem ? haystack.match(new RegExp('\\b' + stem + '[a-z]*\\b', 'gu'))?.length || 0 : 0;
+      const titleRelated = stem ? title.match(new RegExp('\\b' + stem + '[a-z]*\\b', 'gu'))?.length || 0 : 0;
       return sum + exact + titleExact * 8 + related + titleRelated * 8;
     }, 0);
     const categoryBoost = normalizedQuestion.match(/fut|fute|futut|pula|sugi|muie|pizda|injur|jign|vulgar/gu)
