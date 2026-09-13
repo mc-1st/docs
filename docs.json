@@ -14,7 +14,7 @@
   "background": {
     "color": {
       "light": "#180b0d",
-      "dark": "#180b0d"
+      "dark": "#000000"
     }
   },
   "navigation": {
