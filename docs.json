@@ -4,8 +4,8 @@
   "theme": "willow",
   "favicon": "https://media.brand.dev/40273af9-4bbc-4b51-9f79-dc6387d86ec3.png",
   "colors": {
-    "primary": "#346ddb",
-    "light": "#fbc204",
+    "primary": "#FB0000",
+    "light": "#FB0000",
     "dark": "#d81904"
   },
   "appearance": {
