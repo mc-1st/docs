@@ -54,6 +54,7 @@ const cases = [
   ['donatorii pot abuza de beneficii?', '/minecraft/donatori#fly'],
   ['cum aplic la staff', '/informatii-generale#apply'],
   ['cum pot sa devin staff', '/informatii-generale#apply'],
+  ['cum pot deveni membru staff', '/informatii-generale#apply'],
   ['vreau sa intru in echipa', '/informatii-generale#apply'],
   ['unde votez serverul', '/informatii-generale#vote'],
   ['cum primesc reward din vote', '/informatii-generale#vote'],
