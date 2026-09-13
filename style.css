@@ -1,0 +1,18 @@
+/* Keep the dark documentation surface continuous instead of a separate center card. */
+html.dark,
+html.dark body {
+  background-color: #000 !important;
+}
+
+html.dark main:has(#content),
+html.dark main:has(#content) > div,
+html.dark main:has(#content) [class*="bg-background-dark"],
+html.dark main:has(#content) [class*="bg-background-light"],
+html.dark main:has(#content) #content {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+html.dark main:has(#content) > div {
+  border-color: transparent !important;
+}
