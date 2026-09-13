@@ -39,7 +39,17 @@ function rankDocuments(question, documents) {
     const categoryBoost = normalizedQuestion.match(/fut|fute|futut|pula|sugi|muie|pizda|injur|jign|vulgar/gu)
       ? (title.match(/jign|insult|limbaj|vulgar|toxic/gu)?.length || 0) * 20
       : 0;
-    return { ...document, score: score + categoryBoost, _originalIndex: originalIndex };
+    const intentBoosts = [
+      [/spam|flood|deranj/gu, /spam/gu, 80],
+      [/trade|scam|teap|bani reali|comert/gu, /trade|scam|comert|tranzact/gu, 70],
+      [/cont|impart|partaj|fratele|prieten/gu, /cont/gu, 70],
+      [/discord|tag|pornograf|poza|timeout/gu, /discord|poze|imagin/gu, 70],
+      [/grief|insula|protect/gu, /grief|protect/gu, 70],
+      [/hack|cheat|xray|autoclick|screenshare/gu, /hack|cheat|x-ray|xray/gu, 70],
+      [/fly|donor|donator|client/gu, /client|benefici|donor/gu, 70],
+      [/aplic|apply|vote|raportez|hacker/gu, /informatii|aplic|vot|raport/gu, 50]
+    ].reduce((total, [questionPattern, titlePattern, weight]) => normalizedQuestion.match(questionPattern) && title.match(titlePattern) ? total + weight : total, 0);
+    return { ...document, score: score + categoryBoost + intentBoosts, _originalIndex: originalIndex };
   }).sort((a, b) => b.score - a.score || a._originalIndex - b._originalIndex)
     .map(({ _originalIndex, ...document }) => document);
 }
