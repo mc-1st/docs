@@ -47,7 +47,7 @@ function rankDocuments(question, documents) {
       [/grief|insula|protect/gu, /grief|protect/gu, 70],
       [/hack|cheat|xray|autoclick|screenshare/gu, /hack|cheat|x-ray|xray/gu, 70],
       [/fly|donor|donator|client/gu, /client|benefici|donor/gu, 70],
-      [/aplic|apply|devin staff|intru staff|fac parte din echipa|recrut|vote|raportez|hacker/gu, /informatii|aplic|vot|raport/gu, 80],
+      [/aplic|apply|devin staff|deven\\w*\\s+(?:membru\\s+)?staff|intru staff|fac parte din echipa|recrut|vote|raportez|hacker/gu, /informatii|aplic|vot|raport/gu, 80],
       [/grad|alte comunit/gu, /grad|comunit/gu, 70]
     ].reduce((total, [questionPattern, titlePattern, weight]) => normalizedQuestion.match(questionPattern) && title.match(titlePattern) ? total + weight : total, 0);
     return { ...document, score: score + categoryBoost + intentBoosts, _originalIndex: originalIndex };
