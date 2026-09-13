@@ -4,6 +4,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { resolve } from 'node:path';
+import { rankDocuments } from './relevance.mjs';
 
 const port = Number(process.env.PORT || 3099);
 const origin = process.env.RULES_ORIGIN || 'https://rules.mc-1st.ro';
@@ -159,7 +160,7 @@ async function askGroq(question, sources) {
     'Dacă există o regulă relevantă, răspunde concret: ce comportament descrie întrebarea, dacă este permis, sancțiunea exactă și explicația pe scurt. Dacă mai multe reguli se aplică, menționează-le pe toate și indică sancțiunea fiecăreia.',
     'Folosește răspunsul de necunoaștere numai când nicio sursă nu acoperă în mod rezonabil situația. Nu spune că nu există regulă doar pentru că formularea utilizatorului diferă de titlul regulii.',
     'Returnează EXCLUSIV JSON valid în forma {"answer":"...","sanction":"...","sources":[1]}. `sources` trebuie să conțină numerele tuturor secțiunilor care susțin răspunsul și numai numere valide din sursele de mai jos. Scrie concis, clar și natural în română.',
-    'SURSELE COMPLETE ALE REGULAMENTULUI:',
+    'SURSELE COMPLETE ALE REGULAMENTULUI (ordonate cu cele mai probabile surse primele):',
     context
   ].join('\n\n');
   const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -215,7 +216,7 @@ createServer(async (request, response) => {
   try {
     const { question } = await readJson(request);
     if (typeof question !== 'string' || question.trim().length < 3 || question.length > 1000) return send(response, 400, { error: 'Întrebarea trebuie să aibă între 3 și 1000 de caractere.' });
-    const sources = index;
+    const sources = rankDocuments(question.trim(), index);
     if (sources.length === 0) return send(response, 200, noRuleResponse);
     return send(response, 200, await askGroq(question.trim(), sources));
   } catch (error) {
