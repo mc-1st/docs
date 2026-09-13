@@ -2,7 +2,7 @@ const stopWords = new Set('a ai ale al am an asta acest aceasta ca care ce cu da
 
 const queryExpansions = [
   { terms: ['fut', 'fute', 'futut', 'pula', 'sugi', 'muie', 'pizda', 'cur', 'cacat', 'injur', 'jign', 'vulgar'], add: ['jigniri', 'insulte', 'limbaj', 'vulgar', 'toxicitate'] },
-  { terms: ['spam', 'flood', 'deranj'], add: ['spam', 'mesaj', 'repetat'] },
+  { terms: ['spam', 'flood', 'deranj', 'repet', 'multe ori', 'mereu'], add: ['spam', 'mesaj', 'repetat'] },
   { terms: ['hack', 'cheat', 'autoclick', 'xray', 'x-ray', 'screenshare'], add: ['hack', 'cheating', 'interzis', 'control'] },
   { terms: ['reclama', 'server', 'promov'], add: ['reclama', 'promovarea', 'comunitatilor'] },
   { terms: ['cont', 'account', 'impart', 'partaj', 'share', 'fratele', 'prieten'], add: ['conturilor', 'impartirea', 'vanzarea', 'jucatori'] },
@@ -40,7 +40,7 @@ function rankDocuments(question, documents) {
       ? (title.match(/jign|insult|limbaj|vulgar|toxic/gu)?.length || 0) * 20
       : 0;
     const intentBoosts = [
-      [/spam|flood|deranj/gu, /spam/gu, 140],
+      [/spam|flood|deranj|repet|multe ori|mereu/gu, /spam/gu, 140],
       [/trade|scam|teap|bani reali|comert/gu, /trade|scam|comert|tranzact/gu, 70],
       [/cont|impart|partaj|fratele|prieten/gu, /cont/gu, 70],
       [/discord|tag|pornograf|poza|timeout/gu, /discord|poze|imagin/gu, 70],
