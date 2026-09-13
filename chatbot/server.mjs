@@ -4,7 +4,7 @@ import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { resolve } from 'node:path';
-import { rankDocuments } from './relevance.mjs';
+import { focusDocuments } from './relevance.mjs';
 
 const port = Number(process.env.PORT || 3099);
 const origin = process.env.RULES_ORIGIN || 'https://rules.mc-1st.ro';
@@ -219,8 +219,7 @@ createServer(async (request, response) => {
   try {
     const { question } = await readJson(request);
     if (typeof question !== 'string' || question.trim().length < 3 || question.length > 1000) return send(response, 400, { error: 'Întrebarea trebuie să aibă între 3 și 1000 de caractere.' });
-    const rankedSources = rankDocuments(question.trim(), index);
-    const sources = rankedSources.slice(0, 16);
+    const sources = focusDocuments(question.trim(), index);
     if (sources.length === 0) return send(response, 200, noRuleResponse);
     return send(response, 200, await askGroq(question.trim(), sources));
   } catch (error) {
