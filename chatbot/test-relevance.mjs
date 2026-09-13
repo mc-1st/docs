@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { rankDocuments } from './relevance.mjs';
+import { rankDocuments, focusDocuments } from './relevance.mjs';
 
 const docs = [
   { id: '/minecraft/chat#insulte', title: 'Regulament chat — Jigniri și insulte', content: 'limbaj vulgar, insulte și jigniri în chat' },
@@ -43,4 +43,6 @@ for (const [question, expected] of cases) {
   assert.equal(top.id, expected, question + ' => ' + top.id);
 }
 
-console.log('Rule routing tests passed: ' + cases.length + ' cases.');
+const focused = focusDocuments('pot sa injur pe cineva pe chat', docs);
+assert.ok(focused.length > 0 && focused.every((document) => document.id.startsWith('/minecraft/chat')));
+console.log('Rule routing tests passed: ' + (cases.length + 1) + ' cases.');

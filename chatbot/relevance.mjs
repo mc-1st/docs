@@ -55,4 +55,26 @@ function rankDocuments(question, documents) {
     .map(({ _originalIndex, ...document }) => document);
 }
 
-export { normalize, tokens, rankDocuments };
+
+function focusDocuments(question, documents) {
+  const ranked = rankDocuments(question, documents);
+  const normalizedQuestion = normalize(question);
+  const routes = [
+    [/fut|fute|futut|pula|sugi|muie|pizda|injur|jign|vulgar/u, /jign|insult|limbaj|vulgar|toxic/u],
+    [/spam|flood|deranj|repet|multe ori|mereu/u, /spam/u],
+    [/hack|cheat|xray|autoclick|screenshare/u, /hack|cheat|x-ray|xray/u],
+    [/grief|insula|protect/u, /grief|protect/u],
+    [/cont|impart|partaj|fratele|prieten/u, /cont/u],
+    [/trade|scam|teap|bani reali|comert/u, /trade|scam|comert|tranzact/u],
+    [/discord|tag|pornograf|poza|timeout/u, /discord|poze|imagin/u],
+    [/fly|donor|donator|client/u, /client|benefici|donor/u]
+  ];
+  for (const [questionPattern, documentPattern] of routes) {
+    if (!questionPattern.test(normalizedQuestion)) continue;
+    const focused = ranked.filter((document) => documentPattern.test(normalize(document.title + ' ' + document.content)));
+    if (focused.length) return focused.slice(0, 12);
+  }
+  return ranked.slice(0, 16);
+}
+
+export { normalize, tokens, rankDocuments, focusDocuments };
