@@ -34,6 +34,7 @@ const cases = [
   ['stafful poate sa aiba grad pe alt server', '/regulament-staff#grad'],
   ['pot folosi fly la pvp', '/minecraft/donatori#fly'],
   ['cum aplic la staff', '/informatii-generale#apply'],
+  ['cum pot sa devin staff', '/informatii-generale#apply'],
   ['nu stiam regula, mai primesc sanctiune?', '/introducere#ignoranta'],
   ['pot face grief pe insula altuia', '/minecraft/gameplay#grief']
 ];
