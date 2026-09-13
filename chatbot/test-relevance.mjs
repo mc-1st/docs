@@ -23,7 +23,7 @@ const docs = [
 
 const cases = [
   ['pot sa injur pe cineva pe chat', '/minecraft/chat#insulte'],
-  ['pot so fut pe mama unui jucator', '/minecraft/chat#insulte'],
+  ['daca folosesc o injuratura la adresa unui jucator', '/minecraft/chat#insulte'],
   ['daca ii zic unuia ca e prost ce patesc', '/minecraft/chat#insulte'],
   ['pot sa folosesc cuvinte vulgare?', '/minecraft/chat#insulte'],
   ['am voie sa trimit acelasi mesaj de 10 ori', '/minecraft/chat#spam'],
