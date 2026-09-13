@@ -151,6 +151,7 @@ async function syncRulesRepository() {
 async function askGroq(question, sources) {
   if (!process.env.GROQ_API_KEY) throw new Error('Serviciul nu este configurat încă.');
   const context = sources.map((source, number) => `[S${number + 1}] ${source.title}\nURL: ${publicRulesUrl}${source.url}\n${source.content}`).join('\n\n');
+  const catalog = index.map((source) => `${source.id} | ${source.title}`).join('\n');
   const prompt = [
     'Ești asistentul oficial al regulamentului MC-1ST. Răspunzi numai pe baza tuturor surselor MDX incluse mai jos.',
     'Analizează întrebarea după sens, nu doar după cuvintele exacte. Înțelege sinonime, greșeli de scriere, exprimări colocviale, argou, formulări indirecte și limbaj vulgar.',
@@ -160,7 +161,9 @@ async function askGroq(question, sources) {
     'Dacă există o regulă relevantă, răspunde concret: ce comportament descrie întrebarea, dacă este permis, sancțiunea exactă și explicația pe scurt. Dacă mai multe reguli se aplică, menționează-le pe toate și indică sancțiunea fiecăreia.',
     'Folosește răspunsul de necunoaștere numai când nicio sursă nu acoperă în mod rezonabil situația. Nu spune că nu există regulă doar pentru că formularea utilizatorului diferă de titlul regulii.',
     'Returnează EXCLUSIV JSON valid în forma {"answer":"...","sanction":"...","sources":[1]}. `sources` trebuie să conțină numerele tuturor secțiunilor care susțin răspunsul și numai numere valide din sursele de mai jos. Scrie concis, clar și natural în română.',
-    'SURSELE COMPLETE ALE REGULAMENTULUI (ordonate cu cele mai probabile surse primele):',
+    'CATALOGUL COMPLET AL REGULILOR (pentru orientare; conținutul detaliat al celor mai relevante secțiuni urmează):',
+    catalog,
+    'SURSE DETALIATE SELECTATE AUTOMAT DUPĂ RELEVANȚĂ:',
     context
   ].join('\n\n');
   const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -216,7 +219,8 @@ createServer(async (request, response) => {
   try {
     const { question } = await readJson(request);
     if (typeof question !== 'string' || question.trim().length < 3 || question.length > 1000) return send(response, 400, { error: 'Întrebarea trebuie să aibă între 3 și 1000 de caractere.' });
-    const sources = rankDocuments(question.trim(), index);
+    const rankedSources = rankDocuments(question.trim(), index);
+    const sources = rankedSources.slice(0, 16);
     if (sources.length === 0) return send(response, 200, noRuleResponse);
     return send(response, 200, await askGroq(question.trim(), sources));
   } catch (error) {
