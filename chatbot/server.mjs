@@ -151,7 +151,6 @@ async function syncRulesRepository() {
 async function askGroq(question, sources) {
   if (!process.env.GROQ_API_KEY) throw new Error('Serviciul nu este configurat încă.');
   const context = sources.map((source, number) => `[S${number + 1}] ${source.title}\nURL: ${publicRulesUrl}${source.url}\n${source.content}`).join('\n\n');
-  const catalog = index.map((source) => `${source.id} | ${source.title}`).join('\n');
   const prompt = [
     'Ești asistentul oficial al regulamentului MC-1ST. Răspunzi numai pe baza tuturor surselor MDX incluse mai jos.',
     'Analizează întrebarea după sens, nu doar după cuvintele exacte. Înțelege sinonime, greșeli de scriere, exprimări colocviale, argou, formulări indirecte și limbaj vulgar.',
@@ -161,16 +160,26 @@ async function askGroq(question, sources) {
     'Dacă există o regulă relevantă, răspunde concret: ce comportament descrie întrebarea, dacă este permis, sancțiunea exactă și explicația pe scurt. Dacă mai multe reguli se aplică, menționează-le pe toate și indică sancțiunea fiecăreia.',
     'Folosește răspunsul de necunoaștere numai când nicio sursă nu acoperă în mod rezonabil situația. Nu spune că nu există regulă doar pentru că formularea utilizatorului diferă de titlul regulii.',
     'Returnează EXCLUSIV JSON valid în forma {"answer":"...","sanction":"...","sources":[1]}. `sources` trebuie să conțină numerele tuturor secțiunilor care susțin răspunsul și numai numere valide din sursele de mai jos. Scrie concis, clar și natural în română.',
-    'CATALOGUL COMPLET AL REGULILOR (pentru orientare; conținutul detaliat al celor mai relevante secțiuni urmează):',
-    catalog,
-    'SURSE DETALIATE SELECTATE AUTOMAT DUPĂ RELEVANȚĂ:',
+    'SURSE DETALIATE SELECTATE AUTOMAT DUPĂ RELEVANȚĂ (primele sunt cele mai probabile):',
     context
   ].join('\n\n');
-  const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const requestBody = { model, temperature: 0, reasoning_effort: reasoningEffort, max_completion_tokens: 700, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: prompt }, { role: 'user', content: question }] };
+  let groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ model, temperature: 0, reasoning_effort: reasoningEffort, max_completion_tokens: 1200, response_format: { type: 'json_object' }, messages: [{ role: 'system', content: prompt }, { role: 'user', content: question }] })
+    body: JSON.stringify(requestBody)
   });
+  if (groqResponse.status === 429) {
+    const retryAfter = Number(groqResponse.headers.get('retry-after'));
+    if (Number.isFinite(retryAfter) && retryAfter > 0 && retryAfter <= 10) {
+      await new Promise((resolveDelay) => setTimeout(resolveDelay, retryAfter * 1000));
+      groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'content-type': 'application/json' },
+        body: JSON.stringify(requestBody)
+      });
+    }
+  }
   if (!groqResponse.ok) {
     const details = (await groqResponse.text()).slice(0, 500);
     throw new Error(`Groq a răspuns cu eroarea ${groqResponse.status}: ${details}`);
