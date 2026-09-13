@@ -40,7 +40,7 @@ function rankDocuments(question, documents) {
       ? (title.match(/jign|insult|limbaj|vulgar|toxic/gu)?.length || 0) * 20
       : 0;
     const intentBoosts = [
-      [/spam|flood|deranj/gu, /spam/gu, 80],
+      [/spam|flood|deranj/gu, /spam/gu, 140],
       [/trade|scam|teap|bani reali|comert/gu, /trade|scam|comert|tranzact/gu, 70],
       [/cont|impart|partaj|fratele|prieten/gu, /cont/gu, 70],
       [/discord|tag|pornograf|poza|timeout/gu, /discord|poze|imagin/gu, 70],
