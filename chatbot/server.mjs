@@ -161,7 +161,7 @@ async function askGroq(question, sources) {
     'Returnează EXCLUSIV JSON valid în forma {"answer":"...","sanction":"...","sources":[1]}. `sources` trebuie să conțină numerele tuturor secțiunilor care susțin răspunsul și numai numere valide din sursele de mai jos. Scrie concis, clar și natural în română.',
     'SURSELE COMPLETE ALE REGULAMENTULUI:',
     context
-  ].join('\\n\\n');
+  ].join('\n\n');
   const groqResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: { authorization: `Bearer ${process.env.GROQ_API_KEY}`, 'content-type': 'application/json' },
