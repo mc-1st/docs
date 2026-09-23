@@ -23,7 +23,14 @@ export default function StaffTldr() {
         body.innerHTML = parsed.body.innerHTML;
 
         parsed.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
-          const clone = node.cloneNode(true);\n          if (clone.tagName === 'STYLE') {\n            clone.textContent = clone.textContent\n              .replace(/html\\s*,\\s*body/g, '.staff-tldr-root')\n              .replace(/(^|[}\\s])body(?=\\s*[{,])/g, '$1.staff-tldr-root');\n          }\n          shadow.appendChild(clone);
+          const clone = node.cloneNode(true);
+          if (clone.tagName === 'STYLE') {
+            clone.textContent = clone.textContent
+              .replace(/:root/g, '.staff-tldr-root')
+              .replace(/html\s*,\s*body/g, '.staff-tldr-root')
+              .replace(/(^|[}\s])body(?=\s*[{,])/g, '$1.staff-tldr-root');
+          }
+          shadow.appendChild(clone);
         });
 
         const root = document.createElement('div');
