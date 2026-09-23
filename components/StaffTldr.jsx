@@ -41,10 +41,9 @@ const sections = [
   ]}
 ];
 
-const fold = (value) => value.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-const severity = (value) => value.includes('permanent') ? 'perm' : value.includes('Warn') ? 'warn' : value.includes('Mute') ? 'mute' : value.includes('Ban') || value.includes('Suspendare') ? 'temp' : 'var';
-
 export default function StaffTldr() {
+  const fold = (value) => value.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '');
+  const severity = (value) => value.includes('permanent') ? 'perm' : value.includes('Warn') ? 'warn' : value.includes('Mute') ? 'mute' : value.includes('Ban') || value.includes('Suspendare') ? 'temp' : 'var';
   const [query, setQuery] = useState('');
   const [active, setActive] = useState('all');
   const normalized = fold(query.trim());
