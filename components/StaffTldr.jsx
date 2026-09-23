@@ -1,4 +1,11 @@
 import { useEffect, useRef } from 'react';
+import { STAFF_TLDR_HTML } from './staff-tldr-content.js';
+
+function decodeHtml(encoded) {
+  const binary = atob(encoded);
+  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
 
 export default function StaffTldr() {
   const hostRef = useRef(null);
@@ -10,52 +17,45 @@ export default function StaffTldr() {
 
     const shadow = host.attachShadow({ mode: 'open' });
 
-    fetch('/staff-tldr.html', { cache: 'no-store' })
-      .then((response) => {
-        if (!response.ok) throw new Error('Unable to load Staff TLDR');
-        return response.text();
-      })
-      .then((source) => {
-        if (cancelled) return;
+    try {
+      const source = decodeHtml(STAFF_TLDR_HTML);
+      if (cancelled) return undefined;
 
-        const parsed = new DOMParser().parseFromString(source, 'text/html');
-        const body = document.createElement('div');
-        body.innerHTML = parsed.body.innerHTML;
+      const parsed = new DOMParser().parseFromString(source, 'text/html');
+      const body = document.createElement('div');
+      body.innerHTML = parsed.body.innerHTML;
 
-        parsed.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
-          const clone = node.cloneNode(true);
-          if (clone.tagName === 'STYLE') {
-            clone.textContent = clone.textContent
-              .replace(/:root/g, '.staff-tldr-root')
-              .replace(/html\s*,\s*body/g, '.staff-tldr-root')
-              .replace(/(^|[}\s])body(?=\s*[{,])/g, '$1.staff-tldr-root');
-          }
-          shadow.appendChild(clone);
-        });
-
-        const root = document.createElement('div');
-        root.className = 'staff-tldr-root';
-        root.append(...body.childNodes);
-        shadow.appendChild(root);
-
-        const scopedDocument = {
-          getElementById: (id) => shadow.querySelector('#' + CSS.escape(id)),
-          createElement: (tag) => document.createElement(tag),
-          addEventListener: (...args) => shadow.addEventListener(...args),
-          removeEventListener: (...args) => shadow.removeEventListener(...args),
-          get activeElement() { return shadow.activeElement; }
-        };
-
-        parsed.querySelectorAll('script').forEach((script) => {
-          if (!script.textContent.trim()) return;
-          new Function('document', script.textContent)(scopedDocument);
-        });
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          shadow.textContent = error.message;
+      parsed.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
+        const clone = node.cloneNode(true);
+        if (clone.tagName === 'STYLE') {
+          clone.textContent = clone.textContent
+            .replace(/:root/g, '.staff-tldr-root')
+            .replace(/html\s*,\s*body/g, '.staff-tldr-root')
+            .replace(/(^|[}\s])body(?=\s*[{,])/g, '$1.staff-tldr-root');
         }
+        shadow.appendChild(clone);
       });
+
+      const root = document.createElement('div');
+      root.className = 'staff-tldr-root';
+      root.append(...body.childNodes);
+      shadow.appendChild(root);
+
+      const scopedDocument = {
+        getElementById: (id) => shadow.querySelector('#' + CSS.escape(id)),
+        createElement: (tag) => document.createElement(tag),
+        addEventListener: (...args) => shadow.addEventListener(...args),
+        removeEventListener: (...args) => shadow.removeEventListener(...args),
+        get activeElement() { return shadow.activeElement; }
+      };
+
+      parsed.querySelectorAll('script').forEach((script) => {
+        if (!script.textContent.trim()) return;
+        new Function('document', script.textContent)(scopedDocument);
+      });
+    } catch (error) {
+      shadow.textContent = error.message;
+    }
 
     return () => {
       cancelled = true;
