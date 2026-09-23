@@ -1,10 +1,14 @@
 import { useEffect, useRef } from 'react';
 
 export default function StaffTldr() {
-  const rootRef = useRef(null);
+  const hostRef = useRef(null);
 
   useEffect(() => {
     let cancelled = false;
+    const host = hostRef.current;
+    if (!host) return undefined;
+
+    const shadow = host.attachShadow({ mode: 'open' });
 
     fetch('/staff-tldr.html', { cache: 'no-store' })
       .then((response) => {
@@ -12,33 +16,52 @@ export default function StaffTldr() {
         return response.text();
       })
       .then((source) => {
-        if (cancelled || !rootRef.current) return;
+        if (cancelled) return;
 
         const parsed = new DOMParser().parseFromString(source, 'text/html');
-        const root = rootRef.current;
-        root.innerHTML = parsed.body.innerHTML;
+        const body = document.createElement('div');
+        body.innerHTML = parsed.body.innerHTML;
 
         parsed.head.querySelectorAll('style, link[rel="stylesheet"]').forEach((node) => {
-          root.prepend(node.cloneNode(true));
+          const clone = node.cloneNode(true);
+          if (clone.tagName === 'STYLE') {
+            clone.textContent = clone.textContent
+              .replace(/:root/g, '.staff-tldr-root')
+              .replace(/html\s*,\s*body/g, '.staff-tldr-root')
+              .replace(/(^|[}\s])body(?=\s*[{,])/g, '$1.staff-tldr-root');
+          }
+          shadow.appendChild(clone);
         });
+
+        const root = document.createElement('div');
+        root.className = 'staff-tldr-root';
+        root.append(...body.childNodes);
+        shadow.appendChild(root);
+
+        const scopedDocument = {
+          getElementById: (id) => shadow.querySelector('#' + CSS.escape(id)),
+          createElement: (tag) => document.createElement(tag),
+          addEventListener: (...args) => shadow.addEventListener(...args),
+          removeEventListener: (...args) => shadow.removeEventListener(...args),
+          get activeElement() { return shadow.activeElement; }
+        };
 
         parsed.querySelectorAll('script').forEach((script) => {
           if (!script.textContent.trim()) return;
-          const run = document.createElement('script');
-          run.textContent = script.textContent;
-          root.appendChild(run);
-          run.remove();
+          new Function('document', script.textContent)(scopedDocument);
         });
       })
       .catch((error) => {
-        if (!cancelled && rootRef.current) rootRef.current.textContent = error.message;
+        if (!cancelled) {
+          shadow.textContent = error.message;
+        }
       });
 
     return () => {
       cancelled = true;
-      if (rootRef.current) rootRef.current.replaceChildren();
+      host.replaceChildren();
     };
   }, []);
 
-  return <div ref={rootRef} />;
+  return <div ref={hostRef} style={{ display: 'block', width: '100%', minHeight: '100vh' }} />;
 }
