@@ -1,12 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { STAFF_TLDR_HTML } from './staff-tldr-content.js';
 
-function decodeHtml(encoded) {
-  const binary = atob(encoded);
-  const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
-}
-
 export default function StaffTldr() {
   const hostRef = useRef(null);
 
@@ -18,7 +12,9 @@ export default function StaffTldr() {
     const shadow = host.attachShadow({ mode: 'open' });
 
     try {
-      const source = decodeHtml(STAFF_TLDR_HTML);
+      const binary = atob(STAFF_TLDR_HTML);
+      const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+      const source = new TextDecoder().decode(bytes);
       if (cancelled) return undefined;
 
       const parsed = new DOMParser().parseFromString(source, 'text/html');
